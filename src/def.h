@@ -4,9 +4,9 @@
 #define LCD_ADDRESS 0x27
 #define LCD_COLUMNS 16
 #define LCD_ROWS 2
-#define I2C_SDA 27
-#define I2C_SCL 14
-#define SENSOR_PIN 36
+#define I2C_SDA 7
+#define I2C_SCL 6
+#define SENSOR_PIN A0
 
 #define V_REF 5
 #define ADC_MAX 255

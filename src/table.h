@@ -31,8 +31,8 @@ const byte coolant_look_up_table[256] PROGMEM =
     // The last 29 values need to be inverted (to negative)
 };
 
-uint8_t adc_to_byte(float voltage) {
-    return (uint8_t)((voltage / V_REF) * ADC_MAX);
+int8_t adc_to_byte(float voltage) {
+    return (int8_t)((voltage / V_REF) * ADC_MAX);
 }
 
 void read_coolant_table(byte b) 
