@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "def.h"
 
-int16_t coolant_temp_lut = 0;
+int16_t coolant_temp_lookup_value = 0;
 
 const byte coolant_look_up_table[256] PROGMEM = 
 {
@@ -31,20 +31,21 @@ const byte coolant_look_up_table[256] PROGMEM =
     // The last 29 values need to be inverted (to negative)
 };
 
-int8_t adc_to_byte(float voltage) {
+int8_t adc_to_byte(float voltage)
+{
     return (int8_t)((voltage / V_REF) * ADC_MAX);
 }
 
-void read_coolant_table(byte b) 
+void lookup_coolant_temp(byte b) 
 {
-    coolant_temp_lut = pgm_read_byte(&coolant_look_up_table[b]);
-    if (coolant_temp_lut < 14) 
+    coolant_temp_lookup_value = pgm_read_byte(&coolant_look_up_table[b]);
+    if (coolant_temp_lookup_value < 14) 
     {   
-        coolant_temp_lut += 255;
+        coolant_temp_lookup_value += 255;
     }
-    else if (coolant_temp_lut > (255 - 29)) 
+    else if (coolant_temp_lookup_value > (255 - 29)) 
     {
-        coolant_temp_lut = -coolant_temp_lut;
+        coolant_temp_lookup_value = -coolant_temp_lookup_value;
     }
 }
 
