@@ -3,7 +3,8 @@
 
 #define V_REF 5
 #define ADC_MAX 255
-#define RESISTOR_VALUE 2000
+#define RESISTOR_VALUE 2500
+#define NUM_SAMPLES 5
 #define LCD_ADDRESS 0x27
 #define LCD_COLUMNS 16
 #define LCD_ROWS 2

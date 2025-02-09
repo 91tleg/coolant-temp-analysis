@@ -7,57 +7,63 @@
 #include "def.h"
 #include "steinhart.h"
 #include "table.h"
+/*
+ * 20° C (68° F)	2-3K ohms
+ * 50° C (122° F)	700-1000 ohms
+ * 80° C (176° F)	300-400 ohms
+ */
 
-//LiquidCrystal_I2C lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
-
-LiquidCrystal_I2C lcd(0x27,20,4);
-
-constexpr uint8_t NUM_SAMPLES = 5;
-
-extern int16_t coolant_temp_farenheit;
+LiquidCrystal_I2C lcd(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
 
 void setup()
 {
   DDRB = 0xff;
   lcd.init();
-	lcd.backlight();
-	lcd.setCursor(3,0);
-	lcd.print("set up...");
-  _delay_ms(1000);
+  lcd.backlight();
+  lcd.setCursor(3, 0);
+  lcd.print("66230AA041");
+  _delay_ms(1500);
+  lcd.clear();
   Serial.begin(9600);
 }
 
 void loop()
 {
   PORTB |= (1 << 5);
-  _delay_ms(1000);
+  _delay_ms(100);
   PORTB &= ~(1 << 5);
-  lcd.clear();
-  static float voltage = 0.0;
-  static float average_reading_adc = 0.0;
-  static float resistance = 0.0;
+
+  float avg_reading_adc = 0.0;
+  float voltage = 0.0;
+  float resistance = 0.0;
+  uint16_t temp_lookup_value = 0;
+  uint16_t temp_steinhart_value = 0;
+
   for (uint8_t i = 0; i < NUM_SAMPLES; ++i)
   {
-    average_reading_adc += analogRead(SENSOR_PIN);
+    avg_reading_adc += analogRead(SENSOR_PIN);
   }
-  average_reading_adc /= NUM_SAMPLES;
+  avg_reading_adc /= NUM_SAMPLES;
 
-  voltage = (average_reading_adc * 5.0) / 1023.0;
-  uint8_t average_reading_byte_size = adc_to_byte(voltage);
-
-  lookup_coolant_temp(average_reading_byte_size);
+  voltage = claculate_voltage(avg_reading_adc);
+  resistance = get_resistance(avg_reading_adc);
+  _delay_ms(100);
+  int index =  adc_to_arr_index(voltage);
+  temp_lookup_value = get_lookup_temp(index);
+  temp_steinhart_value = get_steinhart_temp(resistance);
+  lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("LUT:");
-  lcd.print(coolant_temp_lookup_value);
-  calculate_steinhart_temp(average_reading_adc);
-  lcd.setCursor(9, 0);
-  lcd.print("CLC:");
-  lcd.print(coolant_temp_farenheit);
+  lcd.print("TB:");
+  lcd.print(temp_lookup_value);
+  lcd.print("F");
 
-  resistance = (RESISTOR_VALUE * average_reading_adc) / (1023.0 - average_reading_adc);
-  lcd.setCursor(0,1);
+  lcd.setCursor(9, 0);
+  lcd.print("SH:");
+  lcd.print(temp_steinhart_value);
+  lcd.print("F");
+
+  lcd.setCursor(0, 1);
   lcd.print(resistance);
   lcd.print("ohms");
   _delay_ms(1000);
-
 }

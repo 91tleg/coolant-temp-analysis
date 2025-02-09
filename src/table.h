@@ -5,9 +5,8 @@
 #include <stdint.h>
 #include "def.h"
 
-int16_t coolant_temp_lookup_value = 0;
 
-const byte coolant_look_up_table[256] PROGMEM = 
+const byte look_up_table[256] PROGMEM = 
 {
     // The first 14 values need 255 added
     146,132,117,105, 90, 76, 63, 48, 36, 29, 22, 15,  9,  2,
@@ -29,24 +28,27 @@ const byte coolant_look_up_table[256] PROGMEM =
                   2,  4,  6,  8,  9,  9, 11, 13, 15, 17, 18, 20, 22,
      24, 27, 31, 33, 36, 40, 42, 45, 47, 47, 47, 47, 47, 47, 47, 47   
     // The last 29 values need to be inverted (to negative)
-};
+};  
 
-int8_t adc_to_byte(float voltage)
+uint8_t adc_to_arr_index(float voltage)
 {
-    return (int8_t)((voltage / V_REF) * ADC_MAX);
+    int16_t index = (int16_t)((voltage / V_REF) * ADC_MAX);
+    return (index < 0) ? 0 : (index > 255 ? 255 : index);
 }
 
-void lookup_coolant_temp(byte b) 
+
+uint16_t get_lookup_temp(byte index) 
 {
-    coolant_temp_lookup_value = pgm_read_byte(&coolant_look_up_table[b]);
-    if (coolant_temp_lookup_value < 14) 
+    uint16_t temp_lookup_value = pgm_read_byte(&look_up_table[index]);  
+    if (temp_lookup_value < 14) 
     {   
-        coolant_temp_lookup_value += 255;
+        temp_lookup_value += 255;
     }
-    else if (coolant_temp_lookup_value > (255 - 29)) 
+    else if (temp_lookup_value > (255 - 29)) 
     {
-        coolant_temp_lookup_value = -coolant_temp_lookup_value;
+        temp_lookup_value = -temp_lookup_value;
     }
+    return temp_lookup_value;
 }
 
 #endif
