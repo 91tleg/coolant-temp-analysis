@@ -1,12 +1,12 @@
-#ifndef TABLE_H
-#define TABLE_H
+#ifndef LOOKUP_TABLE_H
+#define LOOKUP_TABLE_H
 
 #include <Arduino.h>
 #include <stdint.h>
 #include "def.h"
 
 
-const byte look_up_table[256] PROGMEM = 
+const uint8_t lookup_table[256] = 
 {
     // The first 14 values need 255 added
     146,132,117,105, 90, 76, 63, 48, 36, 29, 22, 15,  9,  2,
@@ -30,25 +30,7 @@ const byte look_up_table[256] PROGMEM =
     // The last 29 values need to be inverted (to negative)
 };  
 
-uint8_t adc_to_arr_index(float voltage)
-{
-    int16_t index = (int16_t)((voltage / V_REF) * ADC_MAX);
-    return (index < 0) ? 0 : (index > 255 ? 255 : index);
-}
-
-
-uint16_t get_lookup_temp(byte index) 
-{
-    uint16_t temp_lookup_value = pgm_read_byte(&look_up_table[index]);  
-    if (temp_lookup_value < 14) 
-    {   
-        temp_lookup_value += 255;
-    }
-    else if (temp_lookup_value > (255 - 29)) 
-    {
-        temp_lookup_value = -temp_lookup_value;
-    }
-    return temp_lookup_value;
-}
+uint8_t adc_to_arr_index(float voltage);
+int16_t get_lookup_temp(uint8_t arr_index);
 
 #endif
